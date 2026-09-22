@@ -1,19 +1,24 @@
 default:
     @just --list
 
+# ── build ───────────────────────────────────────────────────────────────────
+
+build:
+    zig build --release=safe
+
 # ── quality ─────────────────────────────────────────────────────────────────
 
 static-qa:
-    deno fmt --check
-    deno lint
-    deno check
+    zig fmt --check build.zig src
+    shellcheck tmux-claude-links.tmux
 
 static-fix:
-    deno fmt
-    deno lint --fix
-    deno check
+    zig fmt build.zig src
+
+check:
+    nix flake check
 
 # ── test ────────────────────────────────────────────────────────────────────
 
 test *args:
-    deno test {{args}}
+    zig build test {{args}}

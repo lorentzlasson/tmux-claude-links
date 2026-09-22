@@ -8,32 +8,34 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
+        zig = pkgs.zig_0_16;
 
         tmux-claude-links = pkgs.stdenv.mkDerivation {
           pname = "tmux-claude-links";
           version = "0.1.0";
           src = self;
-          nativeBuildInputs = [ pkgs.makeWrapper ];
-          dontConfigure = true;
-          dontBuild = true;
-          installPhase = ''
-            mkdir -p $out/share/tmux-claude-links $out/bin
-            cp main.ts links.ts deno.json $out/share/tmux-claude-links/
-            makeWrapper ${pkgs.lib.getExe pkgs.deno} $out/bin/tmux-claude-links \
-              --add-flags "run --allow-run --allow-read --allow-env" \
-              --add-flags "$out/share/tmux-claude-links/main.ts"
+          nativeBuildInputs = [ zig.hook pkgs.makeWrapper ];
+          doCheck = true;
+          postFixup = ''
+            wrapProgram $out/bin/tmux-claude-links \
+              --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.fzf ]} \
+              --suffix PATH : ${pkgs.lib.makeBinPath [ pkgs.xdg-utils ]}
           '';
           meta.mainProgram = "tmux-claude-links";
         };
 
         plugin = pkgs.tmuxPlugins.mkTmuxPlugin {
           pluginName = "claude-links";
+          rtpFilePath = "tmux-claude-links.tmux";
           version = "0.1.0";
-          src = self;
+          src = pkgs.lib.fileset.toSource {
+            root = ./.;
+            fileset = ./tmux-claude-links.tmux;
+          };
           nativeBuildInputs = [ pkgs.makeWrapper ];
           postInstall = ''
             wrapProgram $target/tmux-claude-links.tmux \
-              --prefix PATH : ${pkgs.lib.makeBinPath [ tmux-claude-links pkgs.fzf ]}
+              --prefix PATH : ${pkgs.lib.makeBinPath [ tmux-claude-links ]}
           '';
         };
       in
@@ -43,12 +45,13 @@
           inherit tmux-claude-links plugin;
         };
 
-        devShells.default = with pkgs; mkShell {
-          buildInputs = [
-            just
-            deno
-            fzf
-            tmux
+        devShells.default = pkgs.mkShell {
+          packages = [
+            pkgs.just
+            zig
+            pkgs.fzf
+            pkgs.tmux
+            pkgs.shellcheck
           ];
         };
       }

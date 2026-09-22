@@ -1,1 +1,5 @@
 .direnv/
+zig-out/
+.zig-cache/
+.env
+.env.local
