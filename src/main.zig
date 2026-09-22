@@ -126,9 +126,10 @@ fn pick(ctx: Ctx, listed: []const Entry) ![]const u8 {
 
     var child = try std.process.spawn(ctx.io, .{
         .argv = &.{
-            "fzf",         "--tmux",       "center,90%,60%", "--ansi",
-            "--delimiter", "\t",           "--with-nth",     "1",
-            "--no-sort",   "--no-preview", "-0",             "-1",
+            "fzf",         "--tmux", "center,90%,60%", "--ansi",
+            "--delimiter", "\t",     "--with-nth",     "1",
+            "--nth",       "1",      "--no-sort",      "--no-preview",
+            "-0",          "-1",
         },
         .stdin = .pipe,
         .stdout = .pipe,
