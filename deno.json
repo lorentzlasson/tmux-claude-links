@@ -1,0 +1,13 @@
+{
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1"
+  },
+  "fmt": {
+    "semiColons": false
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["no-control-regex"]
+    }
+  }
+}
