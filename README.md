@@ -7,6 +7,8 @@ directory that exist on disk.
 
 Needs tmux 3.3 or newer for the popup, and Zig 0.16 to build it yourself.
 
+![prefix o opens a popup of every link in the pane, filtered down to one file, which opens in the editor](assets/demo.gif)
+
 ## Install with nix
 
 Add the flake as an input, then put the plugin in your tmux config:
